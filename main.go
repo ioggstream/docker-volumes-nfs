@@ -44,7 +44,15 @@ func (g garbageDriver) Mount(r dkvolume.Request) dkvolume.Response {
 	//  as "host_or_ip/path/to/nfs". Here we
 	//  rebuild the right address host_or_ip:/path/to/nfs
 	v := strings.Split(r.Name, "/")
-	v[0] = v[0] + ":"
+
+	// Volumes starting with "dev" are supposed to
+	//  be block devices in /dev and are not treated
+	//  as NFS hosts.
+	if v[0] == "dev" {
+		v[0] = "/" + v[0]
+	} else {
+		v[0] = v[0] + ":"
+	}
 	source := strings.Join(v, "/")
 
 	fmt.Printf("Mount %s at %s\n", source, p)
